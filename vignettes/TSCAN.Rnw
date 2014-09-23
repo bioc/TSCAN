@@ -36,7 +36,7 @@ TSCAN comes with a user-friendly GUI written in shiny which provides powerful an
 
 Many new features can be added to TSCAN in the future. Most importantly, TSCAN will be able to analyze single-cell experiments data other than gene expression data and construct pseudotemporal ordering correspondingly. TSCAN will also be able to automatically determine the change points of the differentially expressed genes and order the genes according to these change points. Genes with similar change points and change patterns may provide interesting biological findings about the biological processes in the single-cell experiments.
 
-Now we use the single-cell RNA-seq data for BMDC cells before and after 6h of LPS stimulation [5] to demonstrate how TSCAN can be used to construct pseudotemporal cell ordering using TSP.
+Now we use the Human Skeletal Muscle Myoblasts (HSMM) single-cell RNA-seq data [4] to demonstrate how TSCAN can be used to construct pseudotemporal cell ordering using TSP.
 
 \section{Preprocess Gene Expression Profiles}
 
@@ -44,25 +44,29 @@ The function preprocess can be used to filter out genes which are not expressed 
 
 <<>>=
 library(TSCAN)
-data(lpsdata)
-procdata <- preprocess(lpsdata)
+library(HSMMSingleCell)
+library(Biobase)
+data(HSMM)
+HSMMdata <- exprs(HSMM)
+HSMMdata <- HSMMdata[,grep("T0|72",colnames(HSMMdata))]
+procdata <- preprocess(HSMMdata)
 @
 
 By default, preprocess will first take log2 on the original dataset after adding a pseudocount of 1. Then the function will rule out genes which have expression values of less than 1 in at least half of all cells. Genes whose coefficient of covariance of the expression values is less than 1 are also filtered out.
 
 \section{Constructing Pseudotime}
 
-The function TSPpseudotime will perform dimension reduction using principal component analysis and construct a pseudotemporal ordering using TSP algorithm. Because there is no designated starting point of TSP path, it is highly recommended that users specify prior biological information of gene expression to obtain optimal starting point. Here the expression of gene STAT2 is used as prior biological information. In this example the reduced dimension is set to be 2 for better visualization results. If no dimension is specified, TSPpseudotime will automatically choose the optimal dimensionality.
+The function TSPpseudotime will perform dimension reduction using principal component analysis and construct a pseudotemporal ordering using TSP algorithm. Because there is no designated starting point of TSP path, it is highly recommended that users specify prior biological information of gene expression to obtain optimal starting point. Here the expression of gene MYOG is used as prior biological information. In this example the reduced dimension is set to be 2 for better visualization results. If no dimension is specified, TSPpseudotime will automatically choose the optimal dimensionality.
 
 <<>>=
-STAT2expr <- log2(lpsdata["STAT2",]+1)
-lpspseudotime <- TSPpseudotime(procdata, geneexpr = STAT2expr, dim = 2)
+MYOGexpr <- log2(HSMMdata["ENSG00000122180.4",]+1)
+HSMMpseudotime <- TSPpseudotime(procdata, geneexpr = MYOGexpr, dim = 2)
 @
 
-Use plotpseudotime function to visualize the constructed TSP based on the data after dimension reduction. The STAT2 expression values are used to define the size of the nodes in the plot.
+Use plotpseudotime function to visualize the constructed TSP based on the data after dimension reduction. The MYOG expression values are used to define the size of the nodes in the plot.
 
 <<>>=
-plotpseudotime(lpspseudotime, markerexpr = STAT2expr)
+plotpseudotime(HSMMpseudotime, markerexpr = MYOGexpr)
 @
 
 \section{Testing Differentially Expressed Genes}
@@ -70,14 +74,14 @@ plotpseudotime(lpspseudotime, markerexpr = STAT2expr)
 Use difftest function to detect differentially expressed genes given a constructed pseudotemporal ordering. The function will compare fitting a generalized additive model (gam) and fitting a constant. If gam fits significantly better than a constant fit than the gene is supposed to be differentially expressed. Original p-values as well as q-values after adjusting for multiple testing will be the output.
 
 <<>>=
-diffval <- difftest(procdata,lpspseudotime[[1]])
+diffval <- difftest(procdata,HSMMpseudotime[[1]])
 #Selected differentially expressed genes under qvlue cutoff of 0.05
-head(row.names(diffval)[diffval$qval < 0.05])
+row.names(diffval)[diffval$qval < 0.05]
 @
 
 Use singlegeneplot function to plot the expression value of a single gene against a given pseudotime.
 <<>>=
-singlegeneplot(STAT2expr, lpspseudotime[[1]])
+singlegeneplot(MYOGexpr, HSMMpseudotime[[1]])
 @
 
 \section{Comparing Different Pseudotemporal Ordering}
@@ -87,9 +91,9 @@ Given sub-population information of the single-cell information, function orders
 First prepare the ordering information. We want to compare TSP ordering with or without marker gene information.
 
 <<>>=
-subpopulation <- data.frame(cell = colnames(procdata), sub = ifelse(grepl("Unstimulated",colnames(procdata)),0,1), stringsAsFactors = FALSE)
+subpopulation <- data.frame(cell = colnames(procdata), sub = ifelse(grepl("T0",colnames(procdata)),0,1), stringsAsFactors = FALSE)
 #Comparing ordering with or without marker gene information
-order1 <- TSPpseudotime(procdata, geneexpr = STAT2expr, dim = 2)
+order1 <- TSPpseudotime(procdata, geneexpr = MYOGexpr, dim = 2)
 order2 <- TSPpseudotime(procdata, dim = 2)
 orders <- list(order1[[1]],order2[[1]])
 @
@@ -110,7 +114,6 @@ From the previous example we can see that when prior information of MYOG gene ex
 
 [4] Trapnell, C., Cacchiarelli, D., Grimsby, J., Pokharel, P., Li, S., Morse, M., ... \& Rinn, J. L. (2014). The dynamics and regulators of cell fate decisions are revealed by pseudotemporal ordering of single cells. Nature biotechnology.
 
-[5] Shalek, A. K., Satija, R., Shuga, J., Trombetta, J. J., Gennert, D., Lu, D., ... \& Regev, A. (2014). Single-cell RNA-seq reveals dynamic paracrine control of cellular variation. Nature.
 
 \end{document}
 
