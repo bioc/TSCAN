@@ -1,7 +1,7 @@
 Package: TSCAN
 Type: Package
 Title: TSCAN: Tools for Single-Cell ANalysis
-Version: 1.18.0
+Version: 1.19.0
 Date: 2015-8-15
 Author: Zhicheng Ji, Hongkai Ji
 Maintainer: Zhicheng Ji <zji4@jhu.edu>
