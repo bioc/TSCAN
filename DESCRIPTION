@@ -22,14 +22,17 @@ Imports:
     mclust,
     gplots,
     methods,
+    stats,
+    Matrix,
     SummarizedExperiment,
     SingleCellExperiment,
     DelayedArray,
-    S4Vectors,
-    Matrix
+    S4Vectors
 VignetteBuilder: knitr
 Suggests:
     knitr,
-    testthat
+    testthat,
+    scuttle,
+    scran
 biocViews: GeneExpression, Visualization, GUI
 RoxygenNote: 7.1.1
