@@ -68,10 +68,10 @@ test_that("mapCellsToEdges handles free mapping correctly", {
 
     # Expect the same behavior if we forced it to a cluster.
     forced1 <- mapCellsToEdges(y2, mst, clusters=free$left.cluster)
-    expect_identical(free, forced1)
+    expect_equal(free, forced1)
 
     forced2 <- mapCellsToEdges(y2, mst, clusters=free$right.cluster)
-    expect_identical(free, forced2)
+    expect_equal(free, forced2)
 })
 
 set.seed(100100)
@@ -94,4 +94,3 @@ test_that("mapCellsToEdges works with SE and SCE objects", {
     map3 <- mapCellsToEdges(sce, mst, cluster=clust, use.dimred="PCA")
     expect_identical(map, map3)
 })
-
