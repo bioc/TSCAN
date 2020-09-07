@@ -3,12 +3,18 @@ Type: Package
 Title: Tools for Single-Cell Analysis
 Version: 1.27.1
 Date: 2020-09-06
-Author: Zhicheng Ji, Hongkai Ji
-Maintainer: Zhicheng Ji <zji4@jhu.edu>
-Description: TSCAN enables users to easily construct and tune pseudotemporal
-    cell ordering as well as analyzing differentially expressed genes. TSCAN
-    comes with a user-friendly GUI written in shiny. More features will come in
-    the future.
+Authors@R: c(
+        person("Zhicheng", "Ji", role=c("aut", "cre"), email="zji4@jhu.edu"),
+        person("Hongkai", "Ji", role=c("aut")),
+        person("Aaron", "Lun", role=c("ctb"), email="infinite.monkeys.with.keyboards@gmail.com")
+    )
+Description:
+    Provides methods to perform trajectory analysis based on a minimum spanning
+    tree constructed from cluster centroids. Computes pseudotemporal cell
+    orderings by mapping cells in each cluster (or new cells) to the closest
+    edge in the tree. Uses linear modelling to identify differentially
+    expressed genes along each path through the tree. Several plotting and
+    interactive visualization functions are also implemented.
 License: GPL(>=2)
 Imports:
     ggplot2,
