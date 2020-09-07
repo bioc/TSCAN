@@ -153,7 +153,7 @@ setMethod("mapCellsToEdges", "ANY", .map_cells_to_mst)
 #' @importFrom SummarizedExperiment assay
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
 setMethod("mapCellsToEdges", "SummarizedExperiment", function(x, ..., assay.type="logcounts") {
-    .create_cluster_mst(t(assay(x, assay.type)), ...)
+    .map_cells_to_mst(t(assay(x, assay.type)), ...)
 })
 
 #' @export
@@ -162,7 +162,7 @@ setMethod("mapCellsToEdges", "SummarizedExperiment", function(x, ..., assay.type
 #' @importClassesFrom SingleCellExperiment SingleCellExperiment
 setMethod("mapCellsToEdges", "SingleCellExperiment", function(x, clusters=colLabels(x, onAbsence="error"), ..., use.dimred=NULL) {
     if (!is.null(use.dimred)) {
-        .create_cluster_mst(reducedDim(x, use.dimred), clusters=clusters, ...)
+        .map_cells_to_mst(reducedDim(x, use.dimred), clusters=clusters, ...)
     } else {
         callNextMethod(x, clusters=clusters, ...)
     }

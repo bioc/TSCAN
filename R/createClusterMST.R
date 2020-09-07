@@ -110,9 +110,10 @@ NULL
     if (!is.null(columns)) {
         x <- x[,columns,drop=FALSE]                
     }
-
     if (!is.null(clusters)) {
         x <- rowmean(x, clusters)
+    } else if (is.null(rownames(x))) {
+        stop("'x' must have row names corresponding to cluster names")
     }
 
     centers <- as.matrix(x)

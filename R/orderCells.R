@@ -103,6 +103,11 @@ orderCells <- function(mapping, mst, start=NULL) {
                 cum.dist <- cum.dist + E(mst)$weight[edge.id]
             }
 
+            # If any distances are zero, the corresponding cells are considered to be
+            # shared with all paths, as they are assigned right at the branch point.
+            in.everyone <- (mapping$left.cluster == curnode & mapping$left.distance == 0) |
+                (mapping$right.cluster == curnode & mapping$right.distance == 0)
+
             collected.progress <- list()
             for (child in all.children) {
                 sofar <- progress[[i]] # yes, the 'i' here is deliberate.
@@ -112,6 +117,8 @@ orderCells <- function(mapping, mst, start=NULL) {
 
                 cur.cells.2 <- mapping$right.cluster == curnode & mapping$left.cluster == child
                 sofar[cur.cells.2] <- mapping$right.distance[cur.cells.2] + cum.dist
+
+                sofar[in.everyone] <- cum.dist
 
                 collected.progress[[child]] <- sofar
             }
