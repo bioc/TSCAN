@@ -1,8 +1,8 @@
 Package: TSCAN
 Type: Package
-Title: TSCAN: Tools for Single-Cell ANalysis
-Version: 1.27.0
-Date: 2015-8-15
+Title: Tools for Single-Cell Analysis
+Version: 1.27.1
+Date: 2020-09-06
 Author: Zhicheng Ji, Hongkai Ji
 Maintainer: Zhicheng Ji <zji4@jhu.edu>
 Description: TSCAN enables users to easily construct and tune pseudotemporal
@@ -20,10 +20,16 @@ Imports:
     combinat,
     mgcv,
     mclust,
-    gplots
+    gplots,
+    methods,
+    SummarizedExperiment,
+    SingleCellExperiment,
+    DelayedArray,
+    S4Vectors,
+    Matrix
 VignetteBuilder: knitr
 Suggests:
-    knitr
-Depends:
-    R(>= 2.10.0)
+    knitr,
+    testthat
 biocViews: GeneExpression, Visualization, GUI
+RoxygenNote: 7.1.1
