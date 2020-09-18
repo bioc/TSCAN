@@ -25,7 +25,7 @@ Alternatively, a \linkS4class{SummarizedExperiment} containing such a matrix.}
 
 \item{...}{For the generic, further arguments to pass to specific method.
 
-For the ANY method, further arguments to pass to \code{\link{fitLinearModel}}.
+For the ANY method, further arguments to pass to \code{\link[scuttle]{fitLinearModel}}.
 
 For the SummarizedExperiment method, further arguments to pass to the ANY method.}
 

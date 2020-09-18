@@ -14,7 +14,7 @@
 #' when testing for differences between paths.
 #' @param ... For the generic, further arguments to pass to specific method.
 #'
-#' For the ANY method, further arguments to pass to \code{\link{fitLinearModel}}.
+#' For the ANY method, further arguments to pass to \code{\link[scuttle]{fitLinearModel}}.
 #' 
 #' For the SummarizedExperiment method, further arguments to pass to the ANY method.
 #' @param assay.type String or integer scalar specifying the assay containing the log-expression matrix.
