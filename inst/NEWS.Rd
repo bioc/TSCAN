@@ -17,4 +17,6 @@ migrated from the \pkg{scran} package.
 \item Added \code{testPseudotime()} to test for DE genes along one or more paths through a MST.
 
 \item Added the \code{rowmean()} utility to compute column means for row groupings.
+
+\item Added \code{perCellEntropy()} to compute per-cell entropies across various matrix types.
 }}
