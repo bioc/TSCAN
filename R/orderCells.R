@@ -16,7 +16,8 @@
 #' This format is inspired by that from the \pkg{slingshot} package and provides a compact representation of branching events.
 #'
 #' Each branching event in the MST results in a new path and thus a new column in the pseudotime matrix.
-#' For any given row in this matrix, entries are either \code{NA} or they are identical.
+#' An \code{NA} entry for a cell indicates that it is not assigned to that particular path.
+#' All non-\code{NA} entries for any given cell are guaranteed to be identical.
 #' This reflects the fact that multiple paths will share a section of the MST for which the pseudotimes are the same.
 #' 
 #' The starting node in \code{start} is \emph{completely arbitrarily chosen} by \code{orderClusterMST},
