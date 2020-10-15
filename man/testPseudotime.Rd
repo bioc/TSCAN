@@ -14,7 +14,9 @@ testPseudotime(x, ...)
   df = 5,
   get.lfc = TRUE,
   get.spline.coef = FALSE,
-  trend.only = TRUE
+  trend.only = TRUE,
+  block = NULL,
+  BPPARAM = NULL
 )
 
 \S4method{testPseudotime}{SummarizedExperiment}(x, ..., assay.type = "logcounts")
@@ -25,12 +27,9 @@ Alternatively, a \linkS4class{SummarizedExperiment} containing such a matrix.}
 
 \item{...}{For the generic, further arguments to pass to specific method.
 
-For the ANY method, further arguments to pass to \code{\link[scuttle]{fitLinearModel}}.
-
 For the SummarizedExperiment method, further arguments to pass to the ANY method.}
 
-\item{pseudotime}{A numeric matrix with one row per cell in \code{x} and one column per path (i.e., lineage).
-A vector is treated the same as a 1-column matrix.}
+\item{pseudotime}{A numeric vector of length equal to the number of columns of \code{x}.}
 
 \item{df}{Integer scalar specifying the degrees of freedom for the splines.}
 
@@ -40,6 +39,10 @@ A vector is treated the same as a 1-column matrix.}
 
 \item{trend.only}{Logical scalar indicating whether only differences in the trend should be considered
 when testing for differences between paths.}
+
+\item{block}{Factor of length equal to the number of cells in \code{x}, specifying the blocking factor.}
+
+\item{BPPARAM}{A BiocParallelParam object from the \pkg{BiocParallel} package, used to control parallelization.}
 
 \item{assay.type}{String or integer scalar specifying the assay containing the log-expression matrix.}
 }
@@ -56,43 +59,31 @@ Implements a simple method of testing for significant differences with respect t
 based on fitting linear models with a spline basis matrix.
 }
 \details{
-For a single path in \code{pseudotime},
-this function fits a natural spline to the expression of each gene with respect to pseudotime.
+Tis function fits a natural spline to the expression of each gene with respect to pseudotime.
 It then does an ANOVA to test whether any of the spline coefficients are non-zero.
 In this manner, genes exhibiting a significant (and potentially non-linear) trend
 with respect to the pseudotime can be detected as those with low p-values.
 
-For multiple paths in \code{pseudotime}, 
-the null hypothesis is that all paths have the same trend (if \code{trend.only=TRUE})
-or the same trend and intercept (if \code{FALSE}).
-This is done by effectively fitting a separate trend to each path 
-and performing an ANOVA to detect differences in the trend alone or in the trend and intercept.
-In this manner, genes exhibiting differences in behavior between paths can be detected.
-
-The expected format of \code{pseudotime} is the same as that returned by \code{\link{orderCells}}.
-Each cell is assigned to a path if it has a non-\code{NA} value in the corresponding column.
-For single path testing, cells with \code{NA} values in \code{pseudotime} are ignored;
-for multiple path testing, cells assigned to multiple paths are ignored.
+For trajectories with multiple paths, only one path should be tested at a time.
+This usually involves passing a single column of the matrix returned from \code{\link{orderCells}}.
+Cells with \code{NA} values in \code{pseudotime} are assumed to be assigned to a different path and are ignored.
 
 By default, estimates of the spline coefficients are not returned as they are difficult to interpret.
 Rather, a log-fold change of expression along each path is estimated
 to provide some indication of the overall magnitude and direction of any change.
+
+\code{block} can be used to fit a separate linear model to each of multiple batches,
+after which the statistics are combined across batches as described in \code{\link[scran]{testLinearModel}}.
+This avoids potential confounding effects from batch-specific differences in the distribution of cells across pseudotime.
 }
 \examples{
 y <- matrix(rnorm(10000), ncol=100)
-
-# Testing for a difference in a single path:
 u <- runif(100)
 testPseudotime(y, u)
 
-# Testing for differences in multiple paths
-# by mocking up a pseudotime matrix.
-p <- cbind(path1=u, path2=u)
-path1 <- rbinom(length(u), 1, 0.5)==0
-p[!path1,1] <- NA
-p[path1,2] <- NA
-
-testPseudotime(y, p)
+# Handling a blocking factor.
+b <- gl(2, 50)
+testPseudotime(y, u, block=b)
 
 }
 \seealso{

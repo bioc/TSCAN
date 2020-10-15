@@ -1,8 +1,8 @@
 Package: TSCAN
 Type: Package
 Title: Tools for Single-Cell Analysis
-Version: 1.27.3
-Date: 2020-10-10
+Version: 1.27.4
+Date: 2020-10-15
 Authors@R: c(
         person("Zhicheng", "Ji", role=c("aut", "cre"), email="zji4@jhu.edu"),
         person("Hongkai", "Ji", role=c("aut")),
@@ -38,7 +38,9 @@ VignetteBuilder: knitr
 Suggests:
     knitr,
     testthat,
+    beachmat,
     scuttle,
-    scran
+    scran,
+    BiocParallel
 biocViews: GeneExpression, Visualization, GUI
 RoxygenNote: 7.1.1
