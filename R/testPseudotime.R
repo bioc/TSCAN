@@ -114,7 +114,7 @@ NULL
 
 .test_solo_pseudotime <- function(x, pseudotime, df, get.lfc, get.spline.coef) {
     keep <- !is.na(pseudotime)
-    pseudotime. <- pseudotime[keep]
+    pseudotime <- pseudotime[keep]
 
     x <- x[,keep,drop=FALSE] 
     design <- .forge_spline_basis_design(pseudotime, df=df)

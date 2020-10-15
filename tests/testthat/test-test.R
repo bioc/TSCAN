@@ -16,7 +16,7 @@ test_that("basic tests work as expected", {
     test <- rbind(rnorm(100))
     x <- rnorm(100)
     ref <- testPseudotime(test, x)
-    expect_true(ref$p.value > 0.01)
+    expect_true(ref$p.value > 0.1)
 
     test <- rbind(jitter(1:100))
     x <- jitter(1:100)
@@ -30,6 +30,18 @@ test_that("handles large numbers of duplicated pseudotime values", {
     expect_error(out <- testPseudotime(y, u), NA)
     expect_error(out <- testPseudotime(y, u, df=51), "not enough unique")
 })
+
+test_that("handles NA pseudotime values", {
+    y <- matrix(rnorm(10000), ncol=100)
+    u <- c(numeric(50), runif(50))
+    u[1:10] <- NA
+
+    out <- testPseudotime(y, u)
+    ref <- testPseudotime(y[,-(1:10)], u[-(1:10)])
+    expect_identical(out, ref)
+})
+
+set.seed(01002)
 
 test_that("tests handle blocking", {
     y <- matrix(rnorm(10000), ncol=100)
