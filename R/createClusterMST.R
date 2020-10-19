@@ -38,6 +38,13 @@
 #' Only used if \code{outgroup=TRUE}.
 #' @param assay.type An integer or string specifying the assay to use from a SummarizedExperiment \code{x}.
 #' @param use.dimred An integer or string specifying the reduced dimensions to use from a SingleCellExperiment \code{x}.
+#' @param with.mnn A logical scalar indicating whether to use distances computed from mutual nearest neighbor pairs, see Details.
+#' @param mnn.k An integer scalar specifying the number of nearest neighbors to consider for the MNN-based distance calculation. 
+#' See \code{\link[batchelor]{findMutualNN}} for more details.
+#' @param BNPARAM A BiocNeighborParam object specifying how the nearest-neighbor search should be performed when \code{with.mnn=TRUE},
+#' see the \pkg{BiocNeighbors} package for more details.
+#' @param BPPARAM A BiocParallelParam object specifying whether the nearest neighbor search should be parallelized when \code{with.mnn=TRUE},
+#' see the \pkg{BiocNeighbors} package for more details.
 #'
 #' @section Introducing an outgroup:
 #' If \code{outgroup=TRUE}, we add an outgroup to avoid constructing a trajectory between \dQuote{unrelated} clusters.
@@ -65,6 +72,23 @@
 #'
 #' The normalized gain is reported as the \code{"gain"} attribute in the edges of the MST from \code{\link{createClusterMST}}.
 #' Note that the \code{"weight"} attribute represents the edge length.
+#'
+#' @section An alternative distance calculation:
+#' While distances between centroids are usually satisfactory for gauging cluster \dQuote{closeness}, 
+#' they do not consider the behavior at the boundaries of the clusters.
+#' Two clusters that are immediately adjacent (i.e., intermingling at the boundaries) may have a large distance between their centroids
+#' if the clusters themselves span a large region of the coordinate space.
+#' This may preclude the obvious edge from forming in the MST.
+#'
+#' In such cases, we can use an alternative distance calculation based on the distance between mutual nearest neighbors (MNNs).
+#' An MNN pair is defined as two cells in separate clusters that are each other's nearest neighbors in the other cluster.
+#' For each pair of clusters, we identify all MNN pairs and compute the median distance between them.
+#' This distance is then used in place of the distance between centroids to construct the MST.
+#' In this manner, we focus on cluster pairs that are close at their boundaries rather than at their centers.
+#'
+#' This mode can be enabled by setting \code{with.mnn=TRUE}, while the stringency of the MNN definition can be set with \code{mnn.k}.
+#' Similarly, the performance of the nearest neighbor search can be controlled with \code{BPPARAM} and \code{BSPARAM}.
+#' Note that this mode performs a cell-based search and so cannot be used when \code{x} already contains aggregated profiles.
 #' 
 #' @return A \link{graph} object containing an MST computed on \code{centers}.
 #' Each node corresponds to a cluster centroid and has a numeric vector of coordinates in the \code{coordinates} attribute.
@@ -106,19 +130,29 @@ NULL
 
 #' @importFrom igraph graph.adjacency minimum.spanning.tree delete_vertices E V V<-
 #' @importFrom stats median dist
-.create_cluster_mst <- function(x, clusters, outgroup=FALSE, outscale=3, columns=NULL) {
+.create_cluster_mst <- function(x, clusters, outgroup=FALSE, outscale=3, columns=NULL, with.mnn=FALSE, mnn.k=50, BNPARAM=NULL, BPPARAM=NULL) {
     if (!is.null(columns)) {
         x <- x[,columns,drop=FALSE]                
     }
+
     if (!is.null(clusters)) {
-        x <- rowmean(x, clusters)
+        centers <- rowmean(x, clusters)
     } else if (is.null(rownames(x))) {
         stop("'x' must have row names corresponding to cluster names")
+    } else {
+        centers <- as.matrix(x)
     }
 
-    centers <- as.matrix(x)
-    dmat <- dist(centers)
-    dmat <- as.matrix(dmat)
+    if (!with.mnn) {
+        dmat <- dist(centers)
+        dmat <- as.matrix(dmat)
+    } else {
+        if (is.null(clusters)) {
+            stop("'clusters' must be specified when 'with.mnn=TRUE'")
+        }
+        dmat <- .create_mnn_distance_matrix(x, clusters, levels=rownames(centers), 
+            mnn.k=mnn.k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
+    }
 
     if (!isFALSE(outgroup)) {
         if (!is.numeric(outgroup)) {
@@ -155,6 +189,35 @@ NULL
     V(mst)$coordinates <- coord.list[names(V(mst))]
 
     mst 
+}
+
+#' @importFrom stats median
+#' @importFrom Matrix rowSums
+.create_mnn_distance_matrix <- function(x, clusters, levels, mnn.k, BNPARAM=NULL, BPPARAM=NULL) {
+    distances <- matrix(0, length(levels), length(levels), dimnames=list(levels, levels))
+
+    if (is.null(BNPARAM)) {
+        BNPARAM <- BiocNeighbors::KmknnParam()
+    }
+    if (is.null(BPPARAM)) {
+        BPPARAM <- BiocParallel::SerialParam()
+    }
+
+    # TODO: modify batchelor so that findMutualNN can accept indices.
+    for (first in levels) {
+        left <- x[clusters==first,,drop=FALSE]
+        for (second in levels) {
+            if (first==second) break
+
+            right <- x[clusters==second,,drop=FALSE]
+            stuff <- batchelor::findMutualNN(left, right, k1=mnn.k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
+            dist2 <- rowSums((left[stuff$first,,drop=FALSE] - right[stuff$second,,drop=FALSE])^2)
+            distances[first,second] <- sqrt(median(dist2))
+        }
+    }
+
+    # Just making it symmetric.
+    (distances + t(distances))
 }
 
 #' @importFrom igraph minimum.spanning.tree E E<- ends get.edge.ids delete.edges

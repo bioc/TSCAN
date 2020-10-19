@@ -9,7 +9,17 @@
 \usage{
 createClusterMST(x, ...)
 
-\S4method{createClusterMST}{ANY}(x, clusters, outgroup = FALSE, outscale = 3, columns = NULL)
+\S4method{createClusterMST}{ANY}(
+  x,
+  clusters,
+  outgroup = FALSE,
+  outscale = 3,
+  columns = NULL,
+  with.mnn = FALSE,
+  mnn.k = 50,
+  BNPARAM = NULL,
+  BPPARAM = NULL
+)
 
 \S4method{createClusterMST}{SummarizedExperiment}(x, ..., assay.type = "logcounts")
 
@@ -58,6 +68,17 @@ Only used if \code{outgroup=TRUE}.}
 \item{columns}{A character, logical or integer vector specifying the columns of \code{x} to use.
 If \code{NULL}, all provided columns are used by default.}
 
+\item{with.mnn}{A logical scalar indicating whether to use distances computed from mutual nearest neighbor pairs, see Details.}
+
+\item{mnn.k}{An integer scalar specifying the number of nearest neighbors to consider for the MNN-based distance calculation. 
+See \code{\link[batchelor]{findMutualNN}} for more details.}
+
+\item{BNPARAM}{A BiocNeighborParam object specifying how the nearest-neighbor search should be performed when \code{with.mnn=TRUE},
+see the \pkg{BiocNeighbors} package for more details.}
+
+\item{BPPARAM}{A BiocParallelParam object specifying whether the nearest neighbor search should be parallelized when \code{with.mnn=TRUE},
+see the \pkg{BiocNeighbors} package for more details.}
+
 \item{assay.type}{An integer or string specifying the assay to use from a SummarizedExperiment \code{x}.}
 
 \item{use.dimred}{An integer or string specifying the reduced dimensions to use from a SingleCellExperiment \code{x}.}
@@ -102,6 +123,25 @@ requires an alternative path that increases the distance travelled by that edge'
 
 The normalized gain is reported as the \code{"gain"} attribute in the edges of the MST from \code{\link{createClusterMST}}.
 Note that the \code{"weight"} attribute represents the edge length.
+}
+
+\section{An alternative distance calculation}{
+
+While distances between centroids are usually satisfactory for gauging cluster \dQuote{closeness}, 
+they do not consider the behavior at the boundaries of the clusters.
+Two clusters that are immediately adjacent (i.e., intermingling at the boundaries) may have a large distance between their centroids
+if the clusters themselves span a large region of the coordinate space.
+This may preclude the obvious edge from forming in the MST.
+
+In such cases, we can use an alternative distance calculation based on the distance between mutual nearest neighbors (MNNs).
+An MNN pair is defined as two cells in separate clusters that are each other's nearest neighbors in the other cluster.
+For each pair of clusters, we identify all MNN pairs and compute the median distance between them.
+This distance is then used in place of the distance between centroids to construct the MST.
+In this manner, we focus on cluster pairs that are close at their boundaries rather than at their centers.
+
+This mode can be enabled by setting \code{with.mnn=TRUE}, while the stringency of the MNN definition can be set with \code{mnn.k}.
+Similarly, the performance of the nearest neighbor search can be controlled with \code{BPPARAM} and \code{BSPARAM}.
+Note that this mode performs a cell-based search and so cannot be used when \code{x} already contains aggregated profiles.
 }
 
 \examples{

@@ -111,3 +111,33 @@ test_that("MST construction works with SE and SCE inputs", {
     mst <- createClusterMST(sce, cluster=NULL, use.dimred="PCA")
     expect_false(identical(ref[], mst[]))
 })
+
+set.seed(100101)
+test_that("MST construction works with MNN-based distances", {
+    y <- rbind(A=c(0, 1), B=c(0, 2), C=c(0, 3), D=c(0, 4))
+    clusters <- sample(rownames(y), 1000, replace=TRUE)
+    y0 <- y[clusters,,drop=FALSE] + runif(1000, -0.1, 0.1)
+
+    ref <- createClusterMST(y0, clusters=clusters)
+    mst <- createClusterMST(y0, clusters=clusters, with.mnn=TRUE)
+    expect_identical(ref[] > 0, mst[] > 0)
+    expect_identical(igraph::V(ref)$coordinates, igraph::V(mst)$coordinates)
+
+    # Works for a less obvious example. Batch 3 is situated just at the x-midpoint
+    # of batches 1 and 2, but offset on the y-axis and separated with some space.
+    # By contrast, batches 1 and 2 are touching each other and should be connected.
+    y1 <- matrix(runif(500), ncol=2)
+    y2 <- matrix(runif(500), ncol=2)
+    y2[,1] <- y2[,1] + 1
+    y3 <- matrix(runif(500, 0, 0.1), ncol=2)
+    y3[,2] <- y3[,2] + 1.1
+    y3[,1] <- y3[,1] + 0.95
+
+    y <- rbind(y1, y2, y3)
+    clusters <- gl(3, 250)
+
+    ref <- createClusterMST(y, clusters=clusters)
+    expect_false(igraph::are_adjacent(ref, "1", "2"))
+    mst <- createClusterMST(y, clusters=clusters, with.mnn=TRUE)
+    expect_true(igraph::are_adjacent(mst, "1", "2"))
+})
