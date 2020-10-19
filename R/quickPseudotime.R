@@ -16,13 +16,20 @@
 #' @param clusters A vector or factor of length equal to the number of cells in \code{x},
 #' specifying the cluster assignment for each cell.
 #' @param start Arguments passed to \code{\link{orderCells}}.
-#' @param outgroup,outscale Arguments passed to \code{\link{createClusterMST}}.
 #' @param others List of numeric matrices with the same number of rows as \code{x}, to be passed to \code{\link{reportEdges}}.
 #' This typically contains dimensionality reduction results, for use in visualizing the edges of the MST.
 #' If \code{NULL}, defaults to a list containing \code{x}.
 #' @param other.dimreds Logical scalar indicating whether all dimensionality reduction results in \code{x} 
 #' should be appended onto the \code{others} list.
 #' @inheritParams createClusterMST
+#' @param ... For the generic, further arguments to pass to the specific methods.
+#'
+#' For the ANY method, further arguments to pass to \code{\link{createClusterMST}}.
+#'
+#' For the SummarizedExperiment method, further arguments to pass to the ANY method.
+#'
+#' For the SingleCellExperiment method, further arguments to pass to the SummarizedExperiment method
+#' (if \code{use.dimred} is specified) or the ANY method (otherwise).
 #'
 #' @details
 #' This function simply calls, in order:
@@ -72,23 +79,19 @@
 NULL
 
 #' @importFrom S4Vectors List
-.quick_pseudotime <- function(x, clusters, others=NULL, outgroup=FALSE, outscale=3, start=NULL, columns=NULL) {
-    centered <- lapply(c(list(x), others), rowmean, group=clusters)
+#' @importFrom igraph V
+.quick_pseudotime <- function(x, clusters, others=NULL, ..., start=NULL, columns=NULL) {
+    # Do not center beforehand, as people might want to use with.mnn=TRUE.
+    mst <- createClusterMST(x, clusters=clusters, ..., columns=columns)
 
-    # Already centered, so we don't need to set clusters again.
-    mst <- createClusterMST(centered[[1]], clusters=NULL, outgroup=outgroup, outscale=outscale, columns=columns)
-
-    to.use <- centered
-    if (!is.null(others)) {
-        to.use <- to.use[-1]
-    }
+    to.use <- lapply(others, rowmean, group=clusters)
     connected <- lapply(to.use, FUN=reportEdges, clusters=NULL, mst=mst, columns=columns)
 
     mapping <- mapCellsToEdges(x, clusters=clusters, mst=mst, columns=columns)
     ordering <- orderCells(mapping, mst, start=start)
 
     List(
-        centered=centered,
+        centered=to.use,
         mst=mst,
         ordering=ordering,
         connected=connected
@@ -106,7 +109,7 @@ setMethod("quickPseudotime", "ANY", .quick_pseudotime)
 #' @export
 #' @rdname quickPseudotime
 setMethod("quickPseudotime", "SummarizedExperiment", function(x, ..., assay.type="logcounts") {
-    .quick_pseudotime(assay(x, assay.type), ...)
+    .quick_pseudotime(t(assay(x, assay.type)), ...)
 })
 
 #' @export

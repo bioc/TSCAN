@@ -9,15 +9,7 @@
 \usage{
 quickPseudotime(x, ...)
 
-\S4method{quickPseudotime}{ANY}(
-  x,
-  clusters,
-  others = NULL,
-  outgroup = FALSE,
-  outscale = 3,
-  start = NULL,
-  columns = NULL
-)
+\S4method{quickPseudotime}{ANY}(x, clusters, others = NULL, ..., start = NULL, columns = NULL)
 
 \S4method{quickPseudotime}{SummarizedExperiment}(x, ..., assay.type = "logcounts")
 
@@ -44,6 +36,8 @@ In this case, no transposition is performed.}
 
 \item{...}{For the generic, further arguments to pass to the specific methods.
 
+For the ANY method, further arguments to pass to \code{\link{createClusterMST}}.
+
 For the SummarizedExperiment method, further arguments to pass to the ANY method.
 
 For the SingleCellExperiment method, further arguments to pass to the SummarizedExperiment method
@@ -55,8 +49,6 @@ specifying the cluster assignment for each cell.}
 \item{others}{List of numeric matrices with the same number of rows as \code{x}, to be passed to \code{\link{reportEdges}}.
 This typically contains dimensionality reduction results, for use in visualizing the edges of the MST.
 If \code{NULL}, defaults to a list containing \code{x}.}
-
-\item{outgroup, outscale}{Arguments passed to \code{\link{createClusterMST}}.}
 
 \item{start}{Arguments passed to \code{\link{orderCells}}.}
 
