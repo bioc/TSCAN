@@ -4,7 +4,7 @@
 #' possibly on a different coordinate space from that used to construct the MST.
 #' This is mostly useful for plotting purposes in \code{\link{segments}} or the equivalent \pkg{ggplot2} functionality.
 #'
-#' @inheritParams createClusterMST
+#' @inheritParams TrajectoryUtils::createClusterMST
 #' @param mst A \link{graph} object containing a MST, typically the output of \code{\link{createClusterMST}}.
 #' This need not be constructed from the same coordinates as those in \code{x}.
 #' @param combined Logical scalar indicating whether a single data.frame of edge coordinates should be returned.
@@ -32,8 +32,15 @@
 #' \code{\link{quickPseudotime}}, a wrapper to quickly perform these calculations.
 #'
 #' @examples
-#' # Re-using the example from ?createClusterMST.
-#' example(createClusterMST, ask=FALSE) 
+#' # Mocking up a Y-shaped trajectory.
+#' centers <- rbind(c(0,0), c(0, -1), c(1, 1), c(-1, 1))
+#' rownames(centers) <- seq_len(nrow(centers))
+#' clusters <- sample(nrow(centers), 1000, replace=TRUE)
+#' cells <- centers[clusters,]
+#' cells <- cells + rnorm(length(cells), sd=0.5)
+#' 
+#' # Creating the MST:
+#' mst <- createClusterMST(cells, clusters)
 #'
 #' # Plotting the MST on top of existing visualizations:
 #' edges <- reportEdges(x=NULL, mst, combined=FALSE)

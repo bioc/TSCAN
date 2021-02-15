@@ -1,4 +1,4 @@
-# This tests the orderCells function.
+# This tests the pathStat(orderCells function.
 # library(testthat); library(TSCAN); source("test-order.R")
 
 set.seed(99000001)
@@ -10,7 +10,7 @@ test_that("MST ordering works as expected for straight lines", {
 
     mst <- createClusterMST(centers, clusters=NULL)
     mapping <- mapCellsToEdges(y, mst, clusters=clusters)
-    ordering <- orderCells(mapping, mst)
+    ordering <- pathStat(orderCells(mapping, mst))
 
     m <- match(clusters, rownames(centers))
     left.lim <- c(min(centers[,1]), centers[,1])[m]
@@ -27,7 +27,7 @@ test_that("MST ordering works as expected for branching", {
 
     mst <- createClusterMST(centers, clusters=NULL)
     mapping <- mapCellsToEdges(y, mst, clusters=clusters)
-    ordering <- orderCells(mapping, mst, start="base")
+    ordering <- pathStat(orderCells(mapping, mst, start="base"))
 
     # Everyone gets assigned to only one pseudotime.
     expect_identical(ncol(ordering), nrow(centers) - 1L)
@@ -49,7 +49,7 @@ test_that("MST ordering works as expected for a complex case", {
 
     mst <- createClusterMST(centers, clusters=NULL)
     mapping <- mapCellsToEdges(y, mst, clusters=clusters)
-    ordering <- orderCells(mapping, mst, start="base")
+    ordering <- pathStat(orderCells(mapping, mst, start="base"))
 
     # Everyone gets assigned to only one pseudotime.
     expect_identical(ncol(ordering), nrow(centers) - 1L)
@@ -76,7 +76,7 @@ test_that("MST ordering shares values at zero", {
 
     mst <- createClusterMST(Y, clusters=NULL)
     mapping <- mapCellsToEdges(X, mst, clusters=rep("B", nrow(X)))
-    ordering <- orderCells(mapping, mst, start="B")
+    ordering <- pathStat(orderCells(mapping, mst, start="B"))
 
     expect_identical(sum(ordering==0, na.rm=TRUE)/ncol(ordering), 4)
     expect_identical(which(ordering[,1]==0), which(ordering[,2]==0))
@@ -88,7 +88,7 @@ test_that("MST ordering shares values at zero", {
     igraph::E(mst)$weight <- c(1, sqrt(2), sqrt(2))
 
     mapping <- mapCellsToEdges(X, mst, clusters=rep("B", nrow(X)))
-    ordering2 <- orderCells(mapping, mst, start="D")
+    ordering2 <- pathStat(orderCells(mapping, mst, start="D"))
 
     expect_identical(sum(ordering2==0, na.rm=TRUE)/ncol(ordering2), 1)
     expect_identical(sum(ordering2==1, na.rm=TRUE)/ncol(ordering2), 4)
@@ -108,7 +108,7 @@ test_that("MST ordering is robust to transformations", {
 
     mst <- createClusterMST(centers, clusters=NULL)
     map <- mapCellsToEdges(y, clusters=clusters, mst)
-    ref <- orderCells(map, mst)
+    ref <- pathStat(orderCells(map, mst))
 
     # For your viewing pleasure:
     # plot(y[,1], y[,2], col=topo.colors(21)[cut(rowMeans(ref, na.rm=TRUE), 21)])
@@ -118,18 +118,18 @@ test_that("MST ordering is robust to transformations", {
     # Applying various transformation.
     mst2 <- createClusterMST(centers * 2, clusters=NULL)
     map2 <- mapCellsToEdges(y*2, clusters=clusters, mst2)
-    out2 <- orderCells(map2, mst2)
+    out2 <- pathStat(orderCells(map2, mst2))
     expect_equivalent(ref*2, out2)
 
     mstp1 <- createClusterMST(centers + 1, clusters=NULL)
     mapp1 <- mapCellsToEdges(y+1, clusters=clusters, mstp1)
-    outp1 <- orderCells(mapp1, mstp1)
+    outp1 <- pathStat(orderCells(mapp1, mstp1))
     expect_equivalent(ref, outp1)
 
     rotation <- matrix(c(cos(pi/4), sin(pi/4), -sin(pi/4), cos(pi/4)), ncol=2)
     mstr <- createClusterMST(centers %*% rotation, clusters=NULL)
     mapr <- mapCellsToEdges(y %*% rotation, clusters=clusters, mstr)
-    outr <- orderCells(mapr, mstr)
+    outr <- pathStat(orderCells(mapr, mstr))
     expect_equivalent(ref, outr)
 })
 
@@ -144,7 +144,7 @@ test_that("MST ordering behaves with multiple components", {
 
     mst <- createClusterMST(centers, clusters=NULL)
     map <- mapCellsToEdges(y, mst, clusters=clusters)
-    ref <- orderCells(map, mst)
+    ref <- pathStat(orderCells(map, mst))
 
     # Doubling everything and seeing if the system recovers the right pseudotimes for each component.
     doublement <- rbind(centers, centers+100)
@@ -158,7 +158,7 @@ test_that("MST ordering behaves with multiple components", {
     expect_identical(comp$no, 2L)
 
     map2 <- mapCellsToEdges(y2, mst2, clusters=clusters2)
-    out <- orderCells(map2, mst2)
+    out <- pathStat(orderCells(map2, mst2))
 
     original <- !grepl("0", colnames(out))
     first <- seq_along(clusters)
@@ -190,7 +190,7 @@ test_that("MST ordering behaves with multiple components where one has no edges"
     expect_equivalent(igraph::degree(mst, "d"), 0L)
 
     map <- mapCellsToEdges(y, mst, clusters=clusters)
-    ref <- orderCells(map, mst)
+    ref <- pathStat(orderCells(map, mst))
 
     expect_identical(ncol(ref), 2L)    
     expect_identical(sum(ref[,"d"], na.rm=TRUE), 0)

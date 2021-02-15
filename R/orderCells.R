@@ -20,12 +20,13 @@
 #' All non-\code{NA} entries for any given cell are guaranteed to be identical.
 #' This reflects the fact that multiple paths will share a section of the MST for which the pseudotimes are the same.
 #' 
-#' The starting node in \code{start} is \emph{completely arbitrarily chosen} by \code{orderClusterMST},
-#' as directionality is impossible to infer from the expression matrix alone.
+#' If \code{start=NULL}, the starting node is \emph{completely arbitrarily chosen} as directionality is impossible to infer from the expression matrix alone.
 #' However, it is often possible to use prior biological knowledge to pick an appropriate cluster as the starting node.
 #'
 #' @return 
-#' A numeric matrix containing the pseudotimes of all cells (rows) across all paths (columns) through \code{mst}.
+#' A \linkS4class{PseudotimeOrdering} object where rows are cells and columns are paths through \code{mst}.
+#' The first entry of \code{\link{pathStats}} contains a numeric matrix with the pseudotimes of each cell in each path.
+#' The \code{\link{cellData}} contains \code{mapping} and the \code{\link{metadata}} contains the chosen \code{start}.
 #'
 #' @author Aaron Lun
 #' @references
@@ -47,7 +48,7 @@
 #'
 #' # Obtaining pseudo-time orderings.
 #' ordering <- orderCells(mapping, mst)
-#' unified <- rowMeans(ordering, na.rm=TRUE)
+#' unified <- rowMeans(pathStat(ordering), na.rm=TRUE)
 #' plot(cells[,1], cells[,2], col=topo.colors(21)[cut(unified, 21)], pch=16)
 #'
 #' @seealso
@@ -57,6 +58,8 @@
 #'
 #' @export
 #' @importFrom igraph V degree adjacent_vertices components E get.edge.ids
+#' @importFrom TrajectoryUtils PseudotimeOrdering
+#' @importFrom S4Vectors metadata<- metadata
 orderCells <- function(mapping, mst, start=NULL) {
     comp <- components(mst)$membership
     by.comp <- split(names(comp), comp)
@@ -136,5 +139,7 @@ orderCells <- function(mapping, mst, start=NULL) {
         cumulative <- new.cumulative
     }
     
-    do.call(cbind, collated)
+    output <- PseudotimeOrdering(do.call(cbind, collated), cellData=mapping)
+    metadata(output)$start <- start
+    output
 }

@@ -49,7 +49,11 @@ This need not be constructed from the same coordinates as those in \code{x}.}
 
 \item{clusters}{A factor-like object of the same length as \code{nrow(x)},
 specifying the cluster identity for each cell in \code{x}.
-If \code{NULL}, \code{x} is assumed to already contain coordinates for the cluster centroids.}
+If \code{NULL}, \code{x} is assumed to already contain coordinates for the cluster centroids.
+
+Alternatively, a matrix with number of rows equal to \code{nrow(x)}, 
+containing soft assignment weights for each cluster (column).
+All weights should be positive and sum to 1 for each row.}
 
 \item{combined}{Logical scalar indicating whether a single data.frame of edge coordinates should be returned.}
 
@@ -77,8 +81,15 @@ The coordinates in \code{x} can be per-cell or, if \code{clusters=NULL}, they ar
 from the \code{coordinates} vertex attribute of \code{mst}.
 }
 \examples{
-# Re-using the example from ?createClusterMST.
-example(createClusterMST, ask=FALSE) 
+# Mocking up a Y-shaped trajectory.
+centers <- rbind(c(0,0), c(0, -1), c(1, 1), c(-1, 1))
+rownames(centers) <- seq_len(nrow(centers))
+clusters <- sample(nrow(centers), 1000, replace=TRUE)
+cells <- centers[clusters,]
+cells <- cells + rnorm(length(cells), sd=0.5)
+
+# Creating the MST:
+mst <- createClusterMST(cells, clusters)
 
 # Plotting the MST on top of existing visualizations:
 edges <- reportEdges(x=NULL, mst, combined=FALSE)

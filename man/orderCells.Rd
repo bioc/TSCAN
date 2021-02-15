@@ -17,7 +17,9 @@ This need not be generated from the same cells in \code{mapping}.}
 Defaults to an arbitrarily chosen node of degree 1 or lower in each component.}
 }
 \value{
-A numeric matrix containing the pseudotimes of all cells (rows) across all paths (columns) through \code{mst}.
+A \linkS4class{PseudotimeOrdering} object where rows are cells and columns are paths through \code{mst}.
+The first entry of \code{\link{pathStats}} contains a numeric matrix with the pseudotimes of each cell in each path.
+The \code{\link{cellData}} contains \code{mapping} and the \code{\link{metadata}} contains the chosen \code{start}.
 }
 \description{
 Compute a pseudotime for each cell lying on each path through the MST from a given starting node.
@@ -33,8 +35,7 @@ An \code{NA} entry for a cell indicates that it is not assigned to that particul
 All non-\code{NA} entries for any given cell are guaranteed to be identical.
 This reflects the fact that multiple paths will share a section of the MST for which the pseudotimes are the same.
 
-The starting node in \code{start} is \emph{completely arbitrarily chosen} by \code{orderClusterMST},
-as directionality is impossible to infer from the expression matrix alone.
+If \code{start=NULL}, the starting node is \emph{completely arbitrarily chosen} as directionality is impossible to infer from the expression matrix alone.
 However, it is often possible to use prior biological knowledge to pick an appropriate cluster as the starting node.
 }
 \examples{
@@ -51,7 +52,7 @@ mapping <- mapCellsToEdges(cells, mst, clusters=clusters)
 
 # Obtaining pseudo-time orderings.
 ordering <- orderCells(mapping, mst)
-unified <- rowMeans(ordering, na.rm=TRUE)
+unified <- rowMeans(pathStat(ordering), na.rm=TRUE)
 plot(cells[,1], cells[,2], col=topo.colors(21)[cut(unified, 21)], pch=16)
 
 }

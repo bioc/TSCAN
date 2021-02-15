@@ -2,6 +2,12 @@
 \title{TSCAN News}
 \encoding{UTF-8}
 
+\section{Version 1.30.0}{\itemize{
+\item Migrated \code{createClusterMST()} to the \pkg{TrajectoryUtils} package.
+
+\item Modified \code{orderCells()} to return a more informative PseudotimeOrdering object.
+}}
+
 \section{Version 1.28.0}{\itemize{
 \item Added \code{createClusterMST()} to create a cluster-based MST from a variety of inputs,
 migrated from the \pkg{scran} package.

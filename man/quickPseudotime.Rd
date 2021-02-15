@@ -68,7 +68,7 @@ A \linkS4class{List} containing:
 \item \code{centered}, a list of numeric matrices containing the averaged coordinates for each cluster.
 Each matrix corresponds to a dimensionality reduction result in \code{x}.
 \item \code{mst}, a \link{graph} object containing the cluster-level MST computed on the coordinates from \code{use}.
-\item \code{ordering}, a numeric matrix of pseudotimes for various paths through the MST computed from \code{use}.
+\item \code{ordering}, a \linkS4class{PseudotimeOrdering} object containing the ordering for various paths through the MST computed from \code{use}.
 \item \code{connected}, a list of data.frames containing the edge coordinates between centers.
 Each data.frame corresponds to a dimensionality reduction result in \code{x}.
 }

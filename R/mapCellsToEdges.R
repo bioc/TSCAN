@@ -12,7 +12,7 @@
 #' Alternatively, for \linkS4class{SingleCellExperiment}s, this matrix may be extracted from its \code{\link{reducedDims}},
 #' based on the \code{use.dimred} specification.
 #' In this case, no transposition is performed.
-#' @inheritParams createClusterMST
+#' @inheritParams TrajectoryUtils::createClusterMST
 #' @param clusters A factor-like object of the same length as \code{nrow(x)},
 #' specifying the cluster identity for each cell in \code{x}.
 #' This can also be \code{NULL}, see details.
