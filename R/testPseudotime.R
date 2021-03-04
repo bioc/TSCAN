@@ -5,7 +5,8 @@
 #'
 #' @param x A numeric matrix-like object containing log-expression values for cells (columns) and genes (rows).
 #' Alternatively, a \linkS4class{SummarizedExperiment} containing such a matrix.
-#' @param pseudotime A numeric vector of length equal to the number of columns of \code{x}.
+#' @param pseudotime A numeric vector of length equal to the number of columns of \code{x}, containing the pseudotime orderings along a single lineage.
+#' Alternatively, a single-column \linkS4class{PseudotimeOrdering} object containing such a vector in \code{\link{pathStat}(pseudotime)}.
 #' @param df Integer scalar specifying the degrees of freedom for the splines.
 #' @param get.lfc Logical scalar indicating whether to return an overall log-fold change along each path.
 #' @param get.spline.coef Logical scalar indicating whether to return the estimates of the spline coefficients.
@@ -64,7 +65,12 @@
 NULL
 
 #' @importFrom stats p.adjust
+#' @importFrom TrajectoryUtils pathStat
 .test_pseudotime <- function(x, pseudotime, df=5, get.lfc=TRUE, get.spline.coef=FALSE, trend.only=TRUE, block=NULL, BPPARAM=NULL) {
+    if (is(pseudotime, "PseudotimeOrdering")) {
+        pseudotime <- pathStat(pseudotime)
+    }
+
     output <- beachmat::rowBlockApply(x, FUN=.test_blocked_pseudotime, grid=TRUE, BPPARAM=BPPARAM, 
         pseudotime=pseudotime, df=df, get.lfc=get.lfc, get.spline.coef=get.spline.coef, block=block)
 

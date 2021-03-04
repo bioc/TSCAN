@@ -29,7 +29,8 @@ Alternatively, a \linkS4class{SummarizedExperiment} containing such a matrix.}
 
 For the SummarizedExperiment method, further arguments to pass to the ANY method.}
 
-\item{pseudotime}{A numeric vector of length equal to the number of columns of \code{x}.}
+\item{pseudotime}{A numeric vector of length equal to the number of columns of \code{x}, containing the pseudotime orderings along a single lineage.
+Alternatively, a single-column \linkS4class{PseudotimeOrdering} object containing such a vector in \code{\link{pathStat}(pseudotime)}.}
 
 \item{df}{Integer scalar specifying the degrees of freedom for the splines.}
 
