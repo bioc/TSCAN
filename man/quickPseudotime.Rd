@@ -9,7 +9,15 @@
 \usage{
 quickPseudotime(x, ...)
 
-\S4method{quickPseudotime}{ANY}(x, clusters, others = NULL, ..., start = NULL, columns = NULL)
+\S4method{quickPseudotime}{ANY}(
+  x,
+  clusters,
+  others = NULL,
+  ...,
+  outscale = 1.5,
+  start = NULL,
+  columns = NULL
+)
 
 \S4method{quickPseudotime}{SummarizedExperiment}(x, ..., assay.type = "logcounts")
 
@@ -50,14 +58,12 @@ specifying the cluster assignment for each cell.}
 This typically contains dimensionality reduction results, for use in visualizing the edges of the MST.
 If \code{NULL}, defaults to a list containing \code{x}.}
 
-\item{start}{Arguments passed to \code{\link{orderCells}}.}
+\item{outscale}{Passed to \code{\link{createClusterMST}}.
+A different default is used here for historical reasons.}
 
-\item{columns}{A character, logical or integer vector specifying the columns of \code{x} to use.
-If \code{NULL}, all provided columns are used by default.}
+\item{start}{Passed to \code{\link{orderCells}}.}
 
 \item{assay.type}{An integer or string specifying the assay to use from a SummarizedExperiment \code{x}.}
-
-\item{use.dimred}{An integer or string specifying the reduced dimensions to use from a SingleCellExperiment \code{x}.}
 
 \item{other.dimreds}{Logical scalar indicating whether all dimensionality reduction results in \code{x} 
 should be appended onto the \code{others} list.}
