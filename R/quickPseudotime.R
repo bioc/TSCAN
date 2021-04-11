@@ -21,9 +21,7 @@
 #' If \code{NULL}, defaults to a list containing \code{x}.
 #' @param other.dimreds Logical scalar indicating whether all dimensionality reduction results in \code{x} 
 #' should be appended onto the \code{others} list.
-#' @param assay.type An integer or string specifying the assay to use from a SummarizedExperiment \code{x}.
-#' @param outscale Passed to \code{\link{createClusterMST}}.
-#' A different default is used here for historical reasons.
+#' @inheritParams mapCellsToEdges
 #' @param ... For the generic, further arguments to pass to the specific methods.
 #'
 #' For the ANY method, further arguments to pass to \code{\link{createClusterMST}}.
@@ -82,9 +80,9 @@ NULL
 
 #' @importFrom S4Vectors List
 #' @importFrom igraph V
-.quick_pseudotime <- function(x, clusters, others=NULL, ..., outscale=1.5, start=NULL, columns=NULL) {
+.quick_pseudotime <- function(x, clusters, others=NULL, ..., start=NULL, columns=NULL) {
     # Do not center beforehand, as people might want to use with.mnn=TRUE.
-    mst <- createClusterMST(x, clusters=clusters, ..., outscale=outscale, columns=columns)
+    mst <- createClusterMST(x, clusters=clusters, ..., columns=columns)
 
     to.use <- lapply(others, rowmean, group=clusters)
     connected <- lapply(to.use, FUN=reportEdges, clusters=NULL, mst=mst, columns=columns)
