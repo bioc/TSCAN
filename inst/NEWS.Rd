@@ -6,6 +6,9 @@
 \item Migrated \code{createClusterMST()} to the \pkg{TrajectoryUtils} package.
 
 \item Modified \code{orderCells()} to return a more informative PseudotimeOrdering object.
+
+\item Handle pseudotime matrices in \code{testPseudotime()} by testing each path separately.
+Support inclusion of custom \code{row.data=} in each output DataFrame.
 }}
 
 \section{Version 1.28.0}{\itemize{
