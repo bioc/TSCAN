@@ -40,9 +40,9 @@ VignetteBuilder: knitr
 Suggests:
     knitr,
     testthat,
-    beachmat,
     scuttle,
     scran,
+    metapod,
     BiocParallel,
     BiocNeighbors,
     batchelor

@@ -56,8 +56,9 @@ test_that("tests handle blocking", {
     a2 <- testPseudotime(y[,b==2], u[b==2])
     a3 <- testPseudotime(y[,b==3], u[b==3])
     expect_equivalent(out$per.block[,1], a1)
-    expect_identical(out$p.value, 
-        scran::combinePValues(a1$p.value, a2$p.value, a3$p.value, method="z", weights=table(b)))
+
+    refp <- metapod::combineParallelPValues(list(a1$p.value, a2$p.value, a3$p.value), method="stouffer", weights=table(b))
+    expect_identical(out$p.value, refp$p.value)
 
     # Works with parallelization.
     library(BiocParallel)
@@ -71,4 +72,19 @@ test_that("tests handle blocking", {
     expect_true(ref$p.value <= 0.01)
     out <- testPseudotime(test, x, block=b)
     expect_true(out$p.value > 0.1)
+})
+
+test_that("tests handle multiple pseudotime values", {
+    y <- matrix(rnorm(10000), ncol=100)
+    u <- matrix(runif(200), ncol=2)
+    u[1:50,1] <- NA
+    u[51:100,2] <- NA
+
+    out <- testPseudotime(y, u)
+
+    ref1 <- testPseudotime(y, u[,1])
+    expect_identical(ref1, out[[1]])
+
+    ref2 <- testPseudotime(y, u[,2])
+    expect_identical(ref2, out[[2]])
 })

@@ -29,8 +29,9 @@ Alternatively, a \linkS4class{SummarizedExperiment} containing such a matrix.}
 
 For the SummarizedExperiment method, further arguments to pass to the ANY method.}
 
-\item{pseudotime}{A numeric vector of length equal to the number of columns of \code{x}, containing the pseudotime orderings along a single lineage.
-Alternatively, a single-column \linkS4class{PseudotimeOrdering} object containing such a vector in \code{\link{pathStat}(pseudotime)}.}
+\item{pseudotime}{A numeric vector of length equal to \code{ncol(x)}, containing the pseudotime orderings along a single lineage.
+Alternatively, a numeric matrix with number of rows equal to \code{ncol(x)}, where each column contains an ordering across one of multiple lineages.
+Alternatively, a \linkS4class{PseudotimeOrdering} object containing such a matrix in \code{\link{pathStat}(pseudotime)}.}
 
 \item{df}{Integer scalar specifying the degrees of freedom for the splines.}
 
@@ -38,8 +39,7 @@ Alternatively, a single-column \linkS4class{PseudotimeOrdering} object containin
 
 \item{get.spline.coef}{Logical scalar indicating whether to return the estimates of the spline coefficients.}
 
-\item{trend.only}{Logical scalar indicating whether only differences in the trend should be considered
-when testing for differences between paths.}
+\item{trend.only}{Deprecated and ignored.}
 
 \item{block}{Factor of length equal to the number of cells in \code{x}, specifying the blocking factor.}
 
@@ -48,26 +48,29 @@ when testing for differences between paths.}
 \item{assay.type}{String or integer scalar specifying the assay containing the log-expression matrix.}
 }
 \value{
-A \linkS4class{DataFrame} is returned containing the statistics for each gene (row),
+If \code{pseudotime} is a vector, a \linkS4class{DataFrame} is returned containing the statistics for each gene (row),
 including the p-value and its BH-adjusted equivalent.
 If \code{get.lfc=TRUE}, an overall log-fold change is returned for each path.
 
 If \code{get.spline.coef=TRUE}, the estimated spline coefficients are also returned (single path)
 or the differences in the spline fits to the first path are returned (multiple paths).
+
+If \code{pseudotime} is a 2-dimensional object, a list of DataFrames is instead returned.
+Each DataFrame has the same format as described above and contains test statistics for each column (i.e., lineage) in \code{pseudotime}.
 }
 \description{
 Implements a simple method of testing for significant differences with respect to pseudotime,
 based on fitting linear models with a spline basis matrix.
 }
 \details{
-Tis function fits a natural spline to the expression of each gene with respect to pseudotime.
+This function fits a natural spline to the expression of each gene with respect to pseudotime.
 It then does an ANOVA to test whether any of the spline coefficients are non-zero.
 In this manner, genes exhibiting a significant (and potentially non-linear) trend
 with respect to the pseudotime can be detected as those with low p-values.
 
-For trajectories with multiple paths, only one path should be tested at a time.
-This usually involves passing a single column of the matrix returned from \code{\link{orderCells}}.
-Cells with \code{NA} values in \code{pseudotime} are assumed to be assigned to a different path and are ignored.
+Branched trajectories with multiple paths are represented by a 2-dimensional \code{pseudotime}.
+In this case, only one path is tested at a time by only using one column of \code{pseudotime} to form the spline basis matrix.
+Cells with \code{NA} values in any given \code{pseudotime} column are assumed to be assigned to a different path and are ignored when fitting the corresponding model.
 
 By default, estimates of the spline coefficients are not returned as they are difficult to interpret.
 Rather, a log-fold change of expression along each path is estimated
