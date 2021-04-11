@@ -16,6 +16,7 @@ testPseudotime(x, ...)
   get.spline.coef = FALSE,
   trend.only = TRUE,
   block = NULL,
+  row.data = NULL,
   BPPARAM = NULL
 )
 
@@ -42,6 +43,9 @@ Alternatively, a \linkS4class{PseudotimeOrdering} object containing such a matri
 \item{trend.only}{Deprecated and ignored.}
 
 \item{block}{Factor of length equal to the number of cells in \code{x}, specifying the blocking factor.}
+
+\item{row.data}{A \linkS4class{DataFrame} with the same number and order of rows in \code{x},
+containing per-gene annotations to be \code{\link{cbind}}ed to the output DataFrame(s).}
 
 \item{BPPARAM}{A BiocParallelParam object from the \pkg{BiocParallel} package, used to control parallelization.}
 

@@ -17,6 +17,8 @@
 #' For the SummarizedExperiment method, further arguments to pass to the ANY method.
 #' @param assay.type String or integer scalar specifying the assay containing the log-expression matrix.
 #' @param block Factor of length equal to the number of cells in \code{x}, specifying the blocking factor.
+#' @param row.data A \linkS4class{DataFrame} with the same number and order of rows in \code{x},
+#' containing per-gene annotations to be \code{\link{cbind}}ed to the output DataFrame(s).
 #' @param BPPARAM A BiocParallelParam object from the \pkg{BiocParallel} package, used to control parallelization.
 #'
 #' @return
@@ -69,7 +71,7 @@ NULL
 
 #' @importFrom S4Vectors metadata
 #' @importFrom TrajectoryUtils pathStat
-.test_pseudotime <- function(x, pseudotime, df=5, get.lfc=TRUE, get.spline.coef=FALSE, trend.only=TRUE, block=NULL, BPPARAM=NULL) {
+.test_pseudotime <- function(x, pseudotime, df=5, get.lfc=TRUE, get.spline.coef=FALSE, trend.only=TRUE, block=NULL, row.data=NULL, BPPARAM=NULL) {
     drop <- FALSE
     if (is(pseudotime, "PseudotimeOrdering")) {
         pseudotime <- pathStat(pseudotime)
@@ -116,6 +118,10 @@ NULL
                 pval.field="p.value", 
                 valid=valid
             )
+        }
+
+        if (!is.null(row.data)) {
+            output[[i]] <- cbind(output[[i]][,0], row.data, output[[i]])
         }
     }
 

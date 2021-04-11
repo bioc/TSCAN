@@ -88,3 +88,20 @@ test_that("tests handle multiple pseudotime values", {
     ref2 <- testPseudotime(y, u[,2])
     expect_identical(ref2, out[[2]])
 })
+
+test_that("testPseudotime supports addition of arbitrary row.data", {
+    y <- matrix(rnorm(10000), ncol=100)
+    u <- c(numeric(50), runif(50))
+    u[1:10] <- NA
+
+    rownames(y) <- paste0("GENE_", seq_len(nrow(y)))
+    df <- DataFrame(Symbol=sample(letters, nrow(y), replace=TRUE))
+    out <- testPseudotime(y, u, row.data=df)
+
+    expect_identical(rownames(out), rownames(y))
+    expect_identical(out$Symbol, df$Symbol)
+
+    ref <- testPseudotime(y, u)
+    expect_identical(ref, out[,-1])
+})
+
