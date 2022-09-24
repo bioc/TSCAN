@@ -4,10 +4,20 @@
 \alias{TSCANorder}
 \title{TSCANorder}
 \usage{
-TSCANorder(mclustobj, MSTorder = NULL, orderonly = T, flip = F, listbranch = F)
+TSCANorder(
+  mclustobj,
+  startcluster = NULL,
+  MSTorder = NULL,
+  orderonly = F,
+  flip = F,
+  listbranch = F,
+  divide = T
+)
 }
 \arguments{
 \item{mclustobj}{The exact output of the \code{\link{exprmclust}} function.}
+
+\item{startcluster}{A numeric value specifying the cluster where pseudotime starts from.}
 
 \item{MSTorder}{A numeric vector specifying the order of clusters.}
 
@@ -16,6 +26,8 @@ TSCANorder(mclustobj, MSTorder = NULL, orderonly = T, flip = F, listbranch = F)
 \item{flip}{whether to flip the ordering}
 
 \item{listbranch}{whether to list the ordering results of all possible branches in MST. Only works if MSTorder in NULL.}
+
+\item{divide}{for a cluster that are linked to multiple clusters, whether each cell in the cluster can only appear in one of the branches. If TRUE, then the cells in the cluster will be divided based on their distances to the linked clusters and placed separately in different branches. If FALSE, then all cells in the cluster will appear in multiple branches.}
 }
 \value{
 if orderonly = F, a vector of ordered cell names. if orderonly = T, a data frame of ordered cell names, cell states and pseudotime.

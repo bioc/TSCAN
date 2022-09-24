@@ -10,9 +10,12 @@ plotmclust(
   y = 2,
   MSTorder = NULL,
   show_tree = T,
-  show_cell_names = T,
+  show_full_tree = T,
+  show_cell_names = F,
   cell_name_size = 3,
-  markerexpr = NULL
+  cell_point_size = 3,
+  markerexpr = NULL,
+  showcluster = T
 )
 }
 \arguments{
@@ -26,9 +29,13 @@ plotmclust(
 
 \item{show_tree}{Whether to show the links between cells connected in the minimum spanning tree.}
 
+\item{show_full_tree}{Whether to show the full tree or not. Only useful when show_tree=T. Overrides MSTorder.}
+
 \item{show_cell_names}{Whether to draw the name of each cell in the plot.}
 
 \item{cell_name_size}{The size of cell name labels if show_cell_names is TRUE.}
+
+\item{cell_point_size}{The size of cell point.}
 
 \item{markerexpr}{The gene expression used to define the size of nodes.}
 }
