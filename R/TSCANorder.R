@@ -6,12 +6,10 @@
 #' Users can also specify their own path.
 #' 
 #' @param mclustobj The exact output of the \code{\link{exprmclust}} function.
-#' @param startcluster A numeric value specifying the cluster where pseudotime starts from.
 #' @param MSTorder A numeric vector specifying the order of clusters.
 #' @param orderonly Only return the ordering. State or pseudotime information will not be returned
 #' @param flip whether to flip the ordering
 #' @param listbranch whether to list the ordering results of all possible branches in MST. Only works if MSTorder in NULL.
-#' @param divide for a cluster that are linked to multiple clusters, whether each cell in the cluster can only appear in one of the branches. If TRUE, then the cells in the cluster will be divided based on their distances to the linked clusters and placed separately in different branches. If FALSE, then all cells in the cluster will appear in multiple branches.
 #' @return if orderonly = F, a vector of ordered cell names. if orderonly = T, a data frame of ordered cell names, cell states and pseudotime. 
 #' @export
 #' @author Zhicheng Ji, Hongkai Ji <zji4@@zji4.edu>
@@ -21,7 +19,7 @@
 #' lpsmclust <- exprmclust(procdata)
 #' TSCANorder(lpsmclust)
 
-TSCANorder <- function(mclustobj,startcluster=NULL,MSTorder = NULL,orderonly=F,flip=F,listbranch=F,divide=T) {
+TSCANorder <- function(mclustobj,MSTorder = NULL,orderonly=T,flip=F,listbranch=F) {
       if (!is.null(MSTorder) & length(MSTorder) == 1) {
             stop("MSTorder is not a path!")
       }
@@ -35,39 +33,26 @@ TSCANorder <- function(mclustobj,startcluster=NULL,MSTorder = NULL,orderonly=F,f
             orderinMST <- 1
             clutable <- table(mclustobj$clusterid)
             alldeg <- degree(mclustobj$MSTtree)
-            if (is.null(startcluster)) {
-                  allcomb <- expand.grid(as.numeric(names(alldeg)[alldeg==1]),as.numeric(names(alldeg)[alldeg==1]))
-                  allcomb <- allcomb[allcomb[,1] < allcomb[,2],]
-                  numres <- t(apply(allcomb, 1, function(i) {
-                        tmp <- as.vector(get.shortest.paths(mclustobj$MSTtree,i[1],i[2])$vpath[[1]])
-                        c(length(tmp), sum(clutable[tmp]))
-                  }))
-                  optcomb <- allcomb[order(numres[,1],numres[,2],decreasing = T)[1],]
-                  branchcomb <- allcomb[-order(numres[,1],numres[,2],decreasing = T)[1],,drop=F]
-                  MSTorder <- get.shortest.paths(mclustobj$MSTtree,optcomb[1],optcomb[2])$vpath[[1]]       
-            } else {
-                  allcomb <- cbind(startcluster,setdiff(as.numeric(names(alldeg)[alldeg==1]),startcluster))
-                  numres <- t(apply(allcomb, 1, function(i) {
-                        tmp <- as.vector(get.shortest.paths(mclustobj$MSTtree,i[1],i[2])$vpath[[1]])
-                        c(length(tmp), sum(clutable[tmp]))
-                  }))
-                  optcomb <- allcomb[order(numres[,1],numres[,2],decreasing = T)[1],]
-                  branchcomb <- allcomb[-order(numres[,1],numres[,2],decreasing = T)[1],,drop=F]
-                  MSTorder <- get.shortest.paths(mclustobj$MSTtree,optcomb[1],optcomb[2])$vpath[[1]] 
+            allcomb <- expand.grid(as.numeric(names(alldeg)[alldeg==1]),as.numeric(names(alldeg)[alldeg==1]))
+            allcomb <- allcomb[allcomb[,1] < allcomb[,2],]
+            numres <- t(apply(allcomb, 1, function(i) {
+                  tmp <- as.vector(get.shortest.paths(mclustobj$MSTtree,i[1],i[2])$vpath[[1]])
+                  c(length(tmp), sum(clutable[tmp]))
+            }))
+            optcomb <- allcomb[order(numres[,1],numres[,2],decreasing = T)[1],]
+            branchcomb <- allcomb[-order(numres[,1],numres[,2],decreasing = T)[1],]
+            MSTorder <- get.shortest.paths(mclustobj$MSTtree,optcomb[1],optcomb[2])$vpath[[1]] 
+            if (flip) {
+                  MSTorder <- rev(MSTorder)
             }
-            if (flip) MSTorder <- rev(MSTorder)
       } else {
             edgeinMST <- sapply(1:(length(MSTorder)-1),function(i) {
                   adjmat[MSTorder[i],MSTorder[i+1]]
             })
-            if (divide) {
-                  if (sum(edgeinMST==0) > 0) {
-                        orderinMST <- 0
-                  } else {
-                        orderinMST <- 1
-                  }      
-            } else {
+            if (sum(edgeinMST==0) > 0) {
                   orderinMST <- 0
+            } else {
+                  orderinMST <- 1
             }
       }          
       internalorderfunc <- function(internalorder,MSTinout) {
@@ -98,12 +83,12 @@ TSCANorder <- function(mclustobj,startcluster=NULL,MSTorder = NULL,orderonly=F,f
                   edgecell <- names(which(mindistid == which(connectcluid == nextcluid)))
                   
                   difvec <- nextclucenter - currentclucenter
-                  tmppos <- pcareduceres[edgecell,,drop=F] %*% difvec
+                  tmppos <- pcareduceres[edgecell,] %*% difvec
                   pos <- as.vector(tmppos)
                   names(pos) <- row.names(tmppos)
                   TSCANorder <- c(TSCANorder,names(sort(pos)))  
                   
-                  nextreduceres <- pcareduceres[clusterid==nextcluid,,drop=F]     
+                  nextreduceres <- pcareduceres[clusterid==nextcluid,]     
                   if (MSTinout) {
                         connectcluid <- as.numeric(names(which(adjmat[nextcluid,] == 1)))
                   } else {
@@ -117,16 +102,12 @@ TSCANorder <- function(mclustobj,startcluster=NULL,MSTorder = NULL,orderonly=F,f
                   cludist <- sapply(connectcluid, function(x) { 
                         rowSums(sweep(nextreduceres,2,clucenter[x,],"-")^2)
                   })
-                  if (length(cludist)==1) {
-                    mindistid <- 1
-                  } else {
-                    mindistid <- apply(cludist,1,which.min)
-                  }
+                  mindistid <- apply(cludist,1,which.min)
                   
                   edgecell <- names(which(mindistid == which(connectcluid == currentcluid)))
                   
                   difvec <- nextclucenter - currentclucenter
-                  tmppos <- pcareduceres[edgecell,,drop=F] %*% difvec
+                  tmppos <- pcareduceres[edgecell,] %*% difvec
                   pos <- as.vector(tmppos)
                   names(pos) <- row.names(tmppos)
                   TSCANorder <- c(TSCANorder,names(sort(pos)))  
@@ -154,7 +135,6 @@ TSCANorder <- function(mclustobj,startcluster=NULL,MSTorder = NULL,orderonly=F,f
                   allres[[paste("backbone",paste(MSTorder,collapse = ','))]] <- internalorderfunc(MSTorder,1)                    
                   for (tmpcombid in 1:nrow(branchcomb)) {
                         tmporder <- get.shortest.paths(mclustobj$MSTtree,branchcomb[tmpcombid,1],branchcomb[tmpcombid,2])$vpath[[1]] 
-                        if (flip) tmporder <- rev(tmporder)
                         allres[[paste("branch:",paste(tmporder,collapse = ','))]] <- internalorderfunc(tmporder,1)
                   }
                   allres

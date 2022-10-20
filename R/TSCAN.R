@@ -6,5 +6,8 @@
 #' TSCAN comes with a user-friendly GUI written in shiny. More functions will come in the future.
 #' 
 #' @docType package
+#' @import methods
 #' @name TSCAN
+#' @importFrom stats aggregate cutree fitted.values hclust
+#' lm p.adjust pchisq prcomp predict sd
 NULL

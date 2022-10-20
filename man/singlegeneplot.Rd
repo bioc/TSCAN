@@ -4,12 +4,12 @@
 \alias{singlegeneplot}
 \title{singlegeneplot}
 \usage{
-singlegeneplot(geneexpr, order, cell_size = 2)
+singlegeneplot(geneexpr, TSCANorder, cell_size = 2)
 }
 \arguments{
 \item{geneexpr}{The gene expression values. Names should agree with the pseudotime information.}
 
-\item{order}{A character vector of pseudotime cell ordering. Must be within the column names of \code{data}.}
+\item{TSCANorder}{The output of function \code{\link{TSCANorder}}.}
 
 \item{cell_size}{Size of cells in the plot.}
 }
@@ -26,7 +26,7 @@ This function plots the expression values of individual genes against given pseu
 data(lpsdata)
 procdata <- preprocess(lpsdata)
 lpsmclust <- exprmclust(procdata)
-lpsorder <- TSCANorder(lpsmclust,orderonly=TRUE,flip=TRUE)
+lpsorder <- TSCANorder(lpsmclust,orderonly=FALSE,flip=TRUE)
 #Choose STAT1 gene expression to plot
 STAT2expr <- log2(lpsdata["STAT2",]+1)
 singlegeneplot(STAT2expr, lpsorder)
