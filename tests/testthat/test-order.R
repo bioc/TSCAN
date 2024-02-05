@@ -155,7 +155,7 @@ test_that("MST ordering behaves with multiple components", {
     # Bumping up 'outscale' to account for fluctuations in 'centers'.
     mst2 <- createClusterMST(doublement, clusters=NULL, outgroup=TRUE, outscale=10)
     comp <- igraph::components(mst2)
-    expect_identical(comp$no, 2L)
+    expect_equal(comp$no, 2L)
 
     map2 <- mapCellsToEdges(y2, mst2, clusters=clusters2)
     out <- pathStat(orderCells(map2, mst2))
