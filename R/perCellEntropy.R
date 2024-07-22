@@ -53,15 +53,15 @@ NULL
 }
 
 #' @importFrom Matrix colSums
-#' @importClassesFrom DelayedArray SparseArraySeed
+#' @importFrom SparseArray nzwhich
+#' @importClassesFrom SparseArray COO_SparseMatrix SVT_SparseMatrix
 #' @importClassesFrom Matrix dgCMatrix
 .entropic_loop <- function(x) {
-    if (is(x, "SparseArraySeed")) {
-        x <- as(x, "dgCMatrix")
+    if (is(x, "COO_SparseMatrix")) {
+        x <- as(x, "SVT_SparseMatrix")
     } 
 
-    keep <- x > 0
-    idx <- which(keep, arr.ind=TRUE)
+    idx <- nzwhich(x, arr.ind=TRUE)
     vals <- x[idx]
 
     totals <- colSums(x)

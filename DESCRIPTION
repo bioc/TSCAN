@@ -1,8 +1,8 @@
 Package: TSCAN
 Type: Package
 Title: Tools for Single-Cell Analysis
-Version: 1.43.0
-Date: 2024-02-04
+Version: 1.43.1
+Date: 2024-07-18
 Authors@R: c(
         person("Zhicheng", "Ji", role=c("aut", "cre"), email="zji4@jhu.edu"),
         person("Hongkai", "Ji", role=c("aut")),
@@ -16,15 +16,15 @@ Description:
     expressed genes along each path through the tree. Several plotting and
     interactive visualization functions are also implemented.
 License: GPL(>=2)
-Depends: SingleCellExperiment, TrajectoryUtils
+Depends: R (>= 4.4.0), SingleCellExperiment, TrajectoryUtils
 Imports: ggplot2, shiny, plyr, grid, fastICA, igraph, combinat, mgcv,
         mclust, gplots, methods, stats, Matrix, SummarizedExperiment,
-        DelayedArray, S4Vectors
+        SparseArray (>= 1.5.23), DelayedArray (>= 0.31.9), S4Vectors
 VignetteBuilder: knitr
 Suggests: knitr, testthat, scuttle, scran, metapod, BiocParallel,
         BiocNeighbors, batchelor
 biocViews: GeneExpression, Visualization, GUI
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.2
 git_url: https://git.bioconductor.org/packages/TSCAN
 git_branch: RELEASE_3_15
 git_last_commit: f9c8b02

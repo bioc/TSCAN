@@ -2,6 +2,7 @@
 % Please edit documentation in R/TSCAN.R
 \docType{package}
 \name{TSCAN}
+\alias{TSCAN-package}
 \alias{TSCAN}
 \title{TSCAN: Tools for Single-Cell ANalysis}
 \description{
@@ -10,4 +11,18 @@ This package provides essential tools used in analyzing data from single-cell ex
 \details{
 TSCAN enables users to easily construct and tune pseudotemporal cell ordering as well as analyzing differentially expressed genes. 
 TSCAN comes with a user-friendly GUI written in shiny. More functions will come in the future.
+}
+\author{
+\strong{Maintainer}: Zhicheng Ji \email{zji4@jhu.edu}
+
+Authors:
+\itemize{
+  \item Hongkai Ji
+}
+
+Other contributors:
+\itemize{
+  \item Aaron Lun \email{infinite.monkeys.with.keyboards@gmail.com} [contributor]
+}
+
 }
