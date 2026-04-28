@@ -1,7 +1,7 @@
 Package: TSCAN
 Type: Package
 Title: Tools for Single-Cell Analysis
-Version: 1.49.0
+Version: 1.50.0
 Date: 2024-08-14
 Authors@R: c(
         person("Zhicheng", "Ji", role=c("aut", "cre"), email="zji4@jhu.edu"),
